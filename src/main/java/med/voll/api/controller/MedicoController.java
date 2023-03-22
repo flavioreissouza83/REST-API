@@ -17,30 +17,30 @@ import jakarta.validation.Valid;
 public class MedicoController {
 
     @Autowired
-    private MedicoRepository repository; //mecanismo de injeção de dependência.
+    private MedicoRepository medicoRepository; //mecanismo de injeção de dependência.
 
     @PostMapping
     @Transactional
     public void cadastrar(@RequestBody @Valid DadosCadastroMedico dados) {
-        repository.save(new Medico(dados));
+        medicoRepository.save(new Medico(dados));
     }
 
     @GetMapping
     public Page<DadosListagemMedico> listar(@PageableDefault(size = 5, sort = {"nome"}) Pageable paginacao) {
-        return repository.findAll(paginacao).map(DadosListagemMedico::new);
+        return medicoRepository.findAllByAtivoTrue(paginacao).map(DadosListagemMedico::new);
     }
 
     @PutMapping
     @Transactional
     public void atualizar(@RequestBody @Valid DadosAtualizacaoMedico dados) {
-        var medico = repository.getReferenceById(dados.id());
+        var medico = medicoRepository.getReferenceById(dados.id());
         medico.atualizarInformacoes(dados);
     }
 
     @DeleteMapping ("/{id}")
     @Transactional
     public void excluir(@PathVariable Long id) {
-        repository.deleteById(id);
+        var medico = medicoRepository.getReferenceById(id);
+        medico.excluir();
     }
-
 }
